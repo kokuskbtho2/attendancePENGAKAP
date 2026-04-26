@@ -24,54 +24,25 @@
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased">
 
-<div class="bg-white rounded-2xl shadow-lg p-2 mb-6 fade-in border border-indigo-100">
-    <div class="flex gap-2 flex-wrap">
-        <button type="button" onclick="switchTab('students')" id="tab-students-btn" class="flex-1 min-w-[180px] px-5 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-red-500 text-white shadow-md">
-            <i data-lucide="users" class="w-5 h-5"></i> Senarai Murid
-        </button>
-        <button type="button" onclick="switchTab('attendance')" id="tab-attendance-btn" class="flex-1 min-w-[180px] px-5 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-gray-100 text-gray-600 hover:bg-gray-200">
-            <i data-lucide="clipboard-check" class="w-5 h-5"></i> Pengisian Kehadiran
-        </button>
-        <button type="button" onclick="switchTab('analytics')" id="tab-analytics-btn" class="flex-1 min-w-[180px] px-5 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-gray-100 text-gray-600 hover:bg-gray-200">
-            <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Analisa Kehadiran
-        </button>
-        <a href="https://skbtho2official.my.canva.site/cocotracksktho22026" target="_blank" class="px-5 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md">
-            <i data-lucide="home" class="w-5 h-5"></i> Menu Utama
-        </a>
-    </div>
-</div>
-
-<div id="attendance-tab-content" class="hidden animate-in fade-in">
-    <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 overflow-hidden mb-6">
-        <div class="p-4 bg-indigo-50 border-b border-indigo-100">
-            <h3 class="font-bold text-indigo-900 flex items-center gap-2">
-                <i data-lucide="calendar" class="w-5 h-5"></i>
-                Jadual Kehadiran: Tahun <span id="attendance-year-label" class="text-indigo-600">-</span>
-            </h3>
+  <div class="min-h-screen pb-20">
+    <nav class="bg-white border-b sticky top-0 z-40 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200">
+            <i data-lucide="users" class="text-white w-6 h-6"></i>
+          </div>
+          <div>
+            <h1 id="school-title" class="font-extrabold text-indigo-950 tracking-tight">SK Bandar Tun Hussein Onn 2</h1>
+            <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Sistem Pengurusan Kokurikulum</p>
+          </div>
         </div>
-        <div id="attendance-table-container" class="overflow-x-auto p-2"></div>
-    </div>
-</div>
-
-<div id="analytics-tab-content" class="hidden animate-in fade-in p-4">
-    <div id="analytics-dashboard" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-</div>
-
-<div id="attendance-tab-content" class="hidden animate-in fade-in">
-  <div class="bg-white rounded-2xl shadow-lg border border-indigo-100 overflow-hidden mb-6">
-    <div class="p-4 bg-indigo-50 border-b border-indigo-100">
-      <h3 class="font-bold text-indigo-900 flex items-center gap-2">
-        <i data-lucide="calendar" class="w-5 h-5"></i>
-        Jadual Kehadiran: Tahun <span id="attendance-year-label" class="text-indigo-600">-</span>
-      </h3>
-    </div>
-    <div id="attendance-table-container" class="overflow-x-auto p-2"></div>
-  </div>
-</div>
-
-<div id="analytics-tab-content" class="hidden animate-in fade-in">
-  <div id="analytics-dashboard" class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4"></div>
-</div>
+        <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
+          <button id="tab-student-list" class="px-4 py-2 rounded-lg text-sm font-bold transition-all bg-red-500 text-white shadow-md">Senarai Murid</button>
+          <button id="tab-attendance" class="px-4 py-2 rounded-lg text-sm font-bold transition-all text-slate-600 hover:bg-slate-200">Kehadiran</button>
+          <button id="tab-analytics" class="px-4 py-2 rounded-lg text-sm font-bold transition-all text-slate-600 hover:bg-slate-200">Analisa</button>
+        </div>
+      </div>
+    </nav>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
       <div class="relative mb-8 max-w-2xl mx-auto">
@@ -147,7 +118,7 @@
           </div>
         </div>
 
-        <div id="student-list-data-view" class="space-y-6">
+        <div id="student-list-data-view" class="hidden space-y-6">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <button onclick="backToStudentListYearSelection()" class="flex items-center gap-2 text-slate-500 font-bold hover:text-indigo-600 transition-colors">
               <i data-lucide="arrow-left" class="w-5 h-5"></i> Kembali ke Pemilihan Tahun
@@ -647,39 +618,66 @@
             if (input && meetingDatesRecord[`meeting_date_${i}`]) input.value = meetingDatesRecord[`meeting_date_${i}`];
         }
     }
-function switchTab(tabId) {
 
-    // 2. Sembunyi semua
-    Object.keys(views).forEach(key => {
-        if (views[key]) views[key].classList.add('hidden');
-    });
+    function switchTab(tab) {
+      currentView = tab === 'student-list' ? 'student_list' : (tab === 'attendance' ? 'attendance' : 'analytics');
+      document.querySelectorAll('.view-container').forEach(v => v.classList.add('hidden'));
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
 
-    // 3. Tunjuk yang dipilih
-    if (views[tabId]) views[tabId].classList.remove('hidden');
+      const tabIds = ['tab-student-list', 'tab-attendance', 'tab-analytics'];
+      tabIds.forEach(id => {
+        const btn = document.getElementById(id);
+        btn.classList.remove('bg-red-500', 'text-white', 'shadow-md');
+        btn.classList.add('text-slate-600', 'hover:bg-slate-200');
+      });
+      document.getElementById(`tab-${tab}`).classList.add('bg-red-500', 'text-white', 'shadow-md');
+    }
 
-    // 4. Update Gaya Butang (Interface Asal 100%)
-    const btns = {
-        'students': document.getElementById('tab-students-btn'),
-        'attendance': document.getElementById('tab-attendance-btn'),
-        'analytics': document.getElementById('tab-analytics-btn')
-    };
+    function updateYearCounts() {
+      [4, 5, 6].forEach(y => {
+        const count = studentsData.filter(s => s.year == y).length;
+        document.getElementById(`year${y}-count`).textContent = count + ' murid';
+        document.getElementById(`student-list-year${y}-count`).textContent = count + ' murid';
+      });
+    }
 
-    Object.keys(btns).forEach(key => {
-        if (btns[key]) {
-            if (key === tabId) {
-                btns[key].className = "flex-1 min-w-[180px] px-5 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-red-500 text-white shadow-md";
-            } else {
-                btns[key].className = "flex-1 min-w-[180px] px-5 py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 bg-gray-100 text-gray-600 hover:bg-gray-200";
-            }
-        }
-    });
+    function selectStudentListYear(year) {
+      studentListYear = year;
+      document.getElementById('student-list-year-selection').classList.add('hidden');
+      document.getElementById('student-list-data-view').classList.remove('hidden');
+      document.getElementById('student-list-selected-year-badge').textContent = year;
+      document.getElementById('student-list-selected-year-label').textContent = 'Tahun ' + year;
+      renderStudentListRows();
+    }
 
-    // 5. Render Data
-    if (tabId === 'attendance') renderStudentRows();
-    if (tabId === 'analytics') updateAnalytics();
+    function backToStudentListYearSelection() {
+      studentListYear = null;
+      document.getElementById('student-list-year-selection').classList.remove('hidden');
+      document.getElementById('student-list-data-view').classList.add('hidden');
+    }
 
-    if (window.lucide) lucide.createIcons();
-}
+    function renderStudentListRows() {
+      const students = studentsData.filter(s => s.year == studentListYear);
+      const tbody = document.getElementById('student-list-body');
+      tbody.innerHTML = '';
+      if (students.length === 0) { document.getElementById('student-list-empty-state').classList.remove('hidden'); return; }
+      document.getElementById('student-list-empty-state').classList.add('hidden');
+
+      students.sort((a,b) => (a.class_name||"").localeCompare(b.class_name||"") || a.name.localeCompare(b.name)).forEach((s, i) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition-colors";
+        tr.innerHTML = `
+          <td class="px-6 py-4 font-bold text-slate-400">${i + 1}</td>
+          <td class="px-6 py-4 font-black text-slate-900">${s.name}</td>
+          <td class="px-6 py-4 text-center font-bold text-indigo-600">${s.class_name || '-'}</td>
+          <td class="px-6 py-4 text-center">
+            <button onclick="openDeleteModalManual('${s.name}')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
 
     async function addStudentFromList() {
       const name = document.getElementById('student-list-name-input').value.trim().toUpperCase();
