@@ -53,10 +53,16 @@
       </div>
     </div>
 
-    <div id="attendance-tab-content" class="hidden">
+<div id="attendance-tab-content" class="hidden">
+    <div id="attendance-table-container" class="bg-white rounded-2xl shadow-md p-4 overflow-x-auto">
         </div>
-    <div id="analytics-tab-content" class="hidden">
+</div>
+
+<div id="analytics-tab-content" class="hidden">
+    <div id="analytics-dashboard" class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
         </div>
+</div>
+
 
     </div><!-- Student List View -->
     <div id="view-student-list" class="view-container active">
@@ -637,7 +643,23 @@ function switchTab(tabId) {
 
   // 2. Jalankan fungsi render mengikut tab yang dipilih
   if (tabId === 'attendance') {
-    renderStudentRows();
+    renderStudentRows(); function renderStudentRows() {
+    const container = document.getElementById('attendance-table-container'); // Pastikan ID ni sama dengan HTML kat atas
+    if (!container) return;
+
+    // Filter murid ikut tahun yang dipilih
+    const filtered = studentsData.filter(s => s.year == selectedYear);
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p class="p-10 text-center text-gray-500">Tiada murid dijumpai untuk tahun ini.</p>';
+        return;
+    }
+
+    // Kod asal kau untuk buat table...
+    let html = '<table class="w-full text-sm text-left">...</table>'; 
+    container.innerHTML = html; 
+}
+
   } else if (tabId === 'analytics') {
     updateAnalytics();
   } else if (tabId === 'students') {
@@ -836,9 +858,56 @@ async function toggleAttendance(studentId, meetingNum, isChecked) {
 
 // --- 10. FUNGSI ANALISA (TAB 3) ---
 function updateAnalytics() {
-  const year = document.getElementById('analytics-year-selector').value;
-  const meeting = document.getElementById('meeting-selector').value;
-  
+  // 1. Ambil kontena tempat nak letak statistik
+  const container = document.getElementById('analytics-dashboard');
+  if (!container) return;
+
+  // 2. Ambil data murid mengikut tahun yang sedang dipilih (selectedYear)
+  const filteredStudents = studentsData.filter(s => s.year == selectedYear && s.record_type !== 'unit_config');
+
+  if (filteredStudents.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-full p-10 text-center bg-white rounded-2xl border border-dashed border-gray-300">
+        <p class="text-gray-500 font-medium">Tiada data murid untuk Tahun ${selectedYear} lagi.</p>
+      </div>`;
+    return;
+  }
+
+  // 3. Kira Statistik Ringkas
+  let totalPresentOverall = 0;
+  filteredStudents.forEach(s => {
+    for (let i = 1; i <= 12; i++) {
+      if (s[`attendance_${i}`]) totalPresentOverall++;
+    }
+  });
+
+  const totalPossible = filteredStudents.length * 12;
+  const overallPerc = totalPossible > 0 ? Math.round((totalPresentOverall / totalPossible) * 100) : 0;
+
+  // 4. Masukkan HTML ke dalam kontena
+  container.innerHTML = `
+    <div class="bg-gradient-to-br from-indigo-600 to-purple-700 p-6 rounded-2xl text-white shadow-lg">
+      <p class="text-indigo-100 text-sm font-medium mb-1">Kehadiran Keseluruhan</p>
+      <h3 class="text-4xl font-bold">${overallPerc}%</h3>
+      <p class="text-xs text-indigo-200 mt-2">Berdasarkan 12 kali perjumpaan setahun</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl border border-indigo-100 shadow-sm">
+      <p class="text-gray-500 text-sm font-medium mb-1">Jumlah Ahli Unit</p>
+      <h3 class="text-4xl font-bold text-indigo-900">${filteredStudents.length}</h3>
+      <p class="text-xs text-gray-400 mt-2">Murid Tahun ${selectedYear} berdaftar</p>
+    </div>
+
+    <div class="col-span-full mt-4 flex flex-col gap-3">
+       <button onclick="generateComprehensiveReport(${selectedYear})" 
+               class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-3 transition-all">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          CETAK LAPORAN TAHUNAN (PDF)
+       </button>
+    </div>
+  `;
+}
+
   const filteredStudents = studentsData.filter(s => s.year == year);
   const total = filteredStudents.length;
   
@@ -2283,4 +2352,3 @@ Sheet');
 }
 (function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f24d3b697862203',t:'MTc3NzE5ODUzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
