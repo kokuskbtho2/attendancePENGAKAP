@@ -720,6 +720,83 @@
         });
       });
     }
+// --- 5. LOGIK NAVIGASI & TAB (PEMBAIKAN) ---
+    function switchTab(tab) {
+        console.log("Menukar ke tab:", tab); // Untuk debugging di console
+        
+        const tabToViewMap = {
+            'student-list': 'view-student-list',
+            'attendance': 'view-attendance',
+            'analytics': 'view-analytics'
+        };
+
+        // Update view state
+        currentView = tab === 'student-list' ? 'student_list' : (tab === 'attendance' ? 'attendance' : 'analytics');
+        
+        // Sembunyikan semua container
+        document.querySelectorAll('.view-container').forEach(v => v.classList.add('hidden'));
+        
+        // Tunjukkan view yang dipilih
+        const selectedView = document.getElementById(tabToViewMap[tab]);
+        if (selectedView) {
+            selectedView.classList.remove('hidden');
+        }
+
+        // Kemaskini warna butang tab
+        const tabIds = ['tab-student-list', 'tab-attendance', 'tab-analytics'];
+        tabIds.forEach(tabId => {
+            const btn = document.getElementById(tabId);
+            if (btn) {
+                btn.classList.remove('bg-red-500', 'text-white', 'shadow-md');
+                btn.classList.add('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+            }
+        });
+        
+        const activeTab = document.getElementById('tab-' + tab);
+        if (activeTab) {
+            activeTab.classList.remove('bg-gray-100', 'text-gray-600', 'hover:bg-gray-200');
+            activeTab.classList.add('bg-red-500', 'text-white', 'shadow-md');
+        }
+
+        // Refresh data jika masuk tab Analisa
+        if (tab === 'analytics') {
+            updateAnalytics();
+        }
+    }
+
+    // --- 6. SETUP EVENT LISTENERS (WAJIB ADA) ---
+    function setupEventListeners() {
+        // Klik Tab Student List
+        const tabStudentList = document.getElementById('tab-student-list');
+        if (tabStudentList) tabStudentList.onclick = () => switchTab('student-list');
+
+        // Klik Tab Attendance
+        const tabAttendance = document.getElementById('tab-attendance');
+        if (tabAttendance) tabAttendance.onclick = () => switchTab('attendance');
+
+        // Klik Tab Analytics
+        const tabAnalytics = document.getElementById('tab-analytics');
+        if (tabAnalytics) tabAnalytics.onclick = () => switchTab('analytics');
+        
+        console.log("Event Listeners telah diaktifkan!");
+    }
+
+    // Kemaskini fungsi initializeApp untuk panggil setupEventListeners
+    async function initializeApp() {
+        console.log("Sistem dimulakan...");
+        setupEventListeners(); // PENTING: Aktifkan butang dulu
+        
+        // Baru muat data dari cloud
+        if (typeof showAutoSaveNotification === 'function') {
+            showAutoSaveNotification('Memulakan...', 'Menghubungi Google Sheets', 'info');
+        }
+        
+        await loadData();
+        
+        // Sembunyikan loader jika ada
+        const loader = document.getElementById('initial-loader');
+        if (loader) loader.classList.add('hidden');
+    }
 
     function showDateValidationWarning(meetingNum) {
       const warningDiv = document.createElement('div');
@@ -1912,4 +1989,3 @@
   </script>
  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9f24d3b697862203',t:'MTc3NzE5ODUzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
