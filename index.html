@@ -551,13 +551,12 @@ console.log("Rekod Tarikh Ditemui:", meetingDatesRecord); // Untuk semakan di Co
 async function saveMeetingDate(num, val) {
     if (!val) return; 
     
-    // Kita tambah tanda ' di depan untuk elakkan Google Sheets 
-    // menukar format string ini kepada Objek Tarikh secara automatik.
-    const dateAsText = "'" + val; 
+    // Kita tukar 2026-04-28 menjadi 2026_04_28
+    // Google Sheets takkan tukar format kalau ada underscore
+    const safeDate = val.replace(/-/g, "_"); 
     
-    meetingDatesRecord[`attendance_${num}`] = dateAsText; 
+    meetingDatesRecord[`attendance_${num}`] = safeDate; 
     
-    // Terus kemaskini ke Google Sheet
     await syncToSheet('update', meetingDatesRecord);
     showAutoSaveNotification('Tarikh', `Perjumpaan ${num} telah dikemaskini`);
 }
@@ -568,8 +567,8 @@ function loadMeetingDatesUI() {
         if (input && meetingDatesRecord) {
             let dateVal = meetingDatesRecord[`attendance_${i}`];
             if (dateVal) {
-                // Buang tanda apostrof (') jika ada dan ambil 10 aksara (YYYY-MM-DD)
-                let cleanedDate = dateVal.toString().replace("'", "").substring(0, 10);
+                // Tukar semula 2026_04_28 kepada 2026-04-28
+                let cleanedDate = dateVal.toString().replace(/_/g, "-").substring(0, 10);
                 input.value = cleanedDate;
             }
         }
@@ -598,7 +597,10 @@ function loadMeetingDatesUI() {
     function generateAttendancePDF() {
         if (!selectedYear) return;
         const students = studentsData.filter(s => s.year == selectedYear).sort((a,b) => (a.class_name||"").localeCompare(b.class_name||"") || a.name.localeCompare(b.name));
-        const dates = []; for(let i=1; i<=12; i++) { const val = document.querySelector(`.date-input[data-date="${i}"]`).value; dates.push(val ? val.split('-').reverse().slice(0,2).join('/') : '-'); }
+        const dates = []; for(let i=1; i<=12; i++) const val = document.querySelector(`.date-input[data-date="${i}"]`).value;
+    // Tukar format dari YYYY-MM-DD ke DD/MM
+    dates.push(val ? val.split('-').reverse().slice(0,2).join('/') : '-'); 
+}
         const rows = students.map((s, idx) => {
             let cells = ''; let count = 0;
             for(let j=1; j<=12; j++) { const isP = s[`attendance_${j}`] === true || s[`attendance_${j}`] === 'true'; if(isP) count++; cells += `<td style="border:1px solid #000; text-align:center; background:${isP?'#d1fae5':'#fff'}">${isP?'/':''}</td>`; }
