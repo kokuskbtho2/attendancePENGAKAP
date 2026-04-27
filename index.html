@@ -155,7 +155,7 @@
         <div id="student-list-data-view" class="hidden space-y-6 text-left">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <button onclick="backToStudentListYearSelection()" class="flex items-center gap-2 text-slate-500 font-bold hover:text-indigo-600 transition-colors"><i data-lucide="arrow-left" class="w-5 h-5"></i> Kembali</button>
-            <div class="flex items-center gap-3"><span id="student-list-selected-year-badge" class="w-16 h-16 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-xl">4</span><h2 id="student-list-selected-year-label" class="text-2xl font-black text-slate-900 tracking-tight">TAHUN 4</h2></div>
+            <div class="flex items-center gap-3"><span id="student-list-selected-year-badge" class="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-xl">4</span><h2 id="student-list-selected-year-label" class="text-2xl font-black text-slate-900 tracking-tight">TAHUN 4</h2></div>
           </div>
           
           <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
@@ -549,13 +549,11 @@ console.log("Rekod Tarikh Ditemui:", meetingDatesRecord); // Untuk semakan di Co
     async function saveUnitName(val) { await syncToSheet('update', { record_type: 'unit_config', unit_name: val.toUpperCase() }); showAutoSaveNotification('Sistem', 'Nama unit dikemaskini'); }
 
 async function saveMeetingDate(num, val) {
+    // val adalah string format "YYYY-MM-DD" dari input date
     if (!val) return; 
     
-    // Kita tukar 2026-04-28 menjadi 2026_04_28
-    // Google Sheets takkan tukar format kalau ada underscore
-    const safeDate = val.replace(/-/g, "_"); 
-    
-    meetingDatesRecord[`attendance_${num}`] = safeDate; 
+    // Simpan terus string tersebut tanpa menukarnya kepada Objek Tarikh JavaScript
+    meetingDatesRecord[`attendance_${num}`] = val; 
     
     await syncToSheet('update', meetingDatesRecord);
     showAutoSaveNotification('Tarikh', `Perjumpaan ${num} telah dikemaskini`);
@@ -567,9 +565,9 @@ function loadMeetingDatesUI() {
         if (input && meetingDatesRecord) {
             let dateVal = meetingDatesRecord[`attendance_${i}`];
             if (dateVal) {
-                // Tukar semula 2026_04_28 kepada 2026-04-28
-                let cleanedDate = dateVal.toString().replace(/_/g, "-").substring(0, 10);
-                input.value = cleanedDate;
+                // Jika data dari Google Sheet datang sebagai Full ISO String (cth: 2026-04-28T00:00:00Z)
+                // Kita ambil 10 aksara pertama sahaja (YYYY-MM-DD)
+                input.value = dateVal.toString().substring(0, 10);
             }
         }
     }
@@ -597,10 +595,7 @@ function loadMeetingDatesUI() {
     function generateAttendancePDF() {
         if (!selectedYear) return;
         const students = studentsData.filter(s => s.year == selectedYear).sort((a,b) => (a.class_name||"").localeCompare(b.class_name||"") || a.name.localeCompare(b.name));
-        const dates = []; for(let i=1; i<=12; i++) const val = document.querySelector(`.date-input[data-date="${i}"]`).value;
-    // Tukar format dari YYYY-MM-DD ke DD/MM
-    dates.push(val ? val.split('-').reverse().slice(0,2).join('/') : '-'); 
-}
+        const dates = []; for(let i=1; i<=12; i++) { const val = document.querySelector(`.date-input[data-date="${i}"]`).value; dates.push(val ? val.split('-').reverse().slice(0,2).join('/') : '-'); }
         const rows = students.map((s, idx) => {
             let cells = ''; let count = 0;
             for(let j=1; j<=12; j++) { const isP = s[`attendance_${j}`] === true || s[`attendance_${j}`] === 'true'; if(isP) count++; cells += `<td style="border:1px solid #000; text-align:center; background:${isP?'#d1fae5':'#fff'}">${isP?'/':''}</td>`; }
