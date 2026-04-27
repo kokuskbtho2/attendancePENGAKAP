@@ -25,8 +25,7 @@
         .loading-overlay { background: rgba(255,255,255,0.8); backdrop-filter: blur(2px); z-index: 9999; }
         .syncing { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
         .table-container { position: relative; }
-        .table-container::after { content: '→'; position: absolute; right: 10px; top: 50%; opacity: 0.3; font-weight: bold; animation: nudge 2s infinite; display: none; }
-        @media (max-width: 768px) { .table-container::after { display: block; } }
+        @media (max-width: 768px) { .table-container::after { content: '→'; position: absolute; right: 10px; top: 50%; opacity: 0.3; font-weight: bold; animation: nudge 2s infinite; display: block; } }
         @keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(5px); } }
     </style>
 </head>
@@ -48,7 +47,7 @@
           </div>
           <div>
             <h1 class="font-extrabold text-indigo-950 tracking-tight">SKBTHO2</h1>
-            <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Sistem Kehadiran Kokurikulum Murid</p>
+            <p class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">Sistem Kokurikulum</p>
           </div>
         </div>
         <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
@@ -110,11 +109,13 @@
                 <h3 class="text-xl font-black text-slate-900">Tahun 6</h3><p id="student-list-year6-count" class="text-rose-600 font-bold text-sm">0 murid</p>
             </div>
         </div>
+        
         <div id="student-list-data-view" class="hidden space-y-6 text-left">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <button onclick="backToStudentListYearSelection()" class="flex items-center gap-2 text-slate-500 font-bold hover:text-indigo-600 transition-colors"><i data-lucide="arrow-left" class="w-5 h-5"></i> Kembali</button>
             <div class="flex items-center gap-3"><span id="student-list-selected-year-badge" class="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-black text-xl">4</span><h2 id="student-list-selected-year-label" class="text-2xl font-black text-slate-900 tracking-tight">Tahun 4</h2></div>
           </div>
+          
           <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                <div class="md:col-span-2"><input type="text" id="student-list-name-input" placeholder="Nama Penuh Murid" class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-indigo-500 outline-none"></div>
@@ -122,12 +123,27 @@
                <button id="add-student-list-btn" class="bg-indigo-600 text-white font-bold rounded-xl px-6 py-3 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 uppercase text-xs">Tambah</button>
              </div>
           </div>
+
           <div class="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-2xl border border-slate-100 gap-4">
-             <div class="flex flex-wrap gap-2"><button onclick="openBulkUploadModal()" class="px-4 py-2 bg-emerald-50 text-emerald-600 font-bold rounded-xl hover:bg-emerald-100 flex items-center gap-2 text-xs"><i data-lucide="upload" class="w-4 h-4"></i> Tambah Pukal</button><button onclick="generateStudentListPDF()" class="px-4 py-2 bg-slate-50 text-slate-600 font-bold rounded-xl hover:bg-slate-100 flex items-center gap-2 text-xs"><i data-lucide="printer" class="w-4 h-4"></i> Cetak Senarai</button></div>
+             <div class="flex flex-wrap gap-2">
+                <button onclick="openBulkUploadModal()" class="px-4 py-2 bg-emerald-50 text-emerald-600 font-bold rounded-xl hover:bg-emerald-100 flex items-center gap-2 text-xs"><i data-lucide="upload" class="w-4 h-4"></i> Tambah Pukal</button>
+                <button onclick="generateStudentListPDF()" class="px-4 py-2 bg-slate-50 text-slate-600 font-bold rounded-xl hover:bg-slate-100 flex items-center gap-2 text-xs"><i data-lucide="printer" class="w-4 h-4"></i> Cetak Senarai</button>
+             </div>
              <button onclick="openDeleteAllModal()" class="px-4 py-2 bg-rose-50 text-rose-600 font-bold rounded-xl hover:bg-rose-100 flex items-center gap-2 text-xs"><i data-lucide="trash-2" class="w-4 h-4"></i> Padam Semua</button>
           </div>
+
           <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden overflow-x-auto table-container">
-            <table class="w-full"><thead class="bg-slate-50 border-b border-slate-100"><tr><th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase w-20">Bil</th><th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase">Nama Murid</th><th class="px-6 py-4 text-center text-xs font-bold text-slate-400 uppercase w-40">Kelas</th><th class="px-6 py-4 text-center text-xs font-bold text-slate-400 uppercase w-32">Aksi</th></tr></thead><tbody id="student-list-body" class="divide-y divide-slate-100"></tbody></table>
+            <table class="w-full">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase w-20">Bil</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase">Nama Murid</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-slate-400 uppercase w-40">Kelas</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-slate-400 uppercase w-32">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="student-list-body" class="divide-y divide-slate-100"></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -138,13 +154,43 @@
             <div onclick="selectYear(5)" class="bg-white rounded-3xl p-8 border-2 border-slate-100 hover:border-emerald-500 hover:shadow-2xl transition-all cursor-pointer group text-center"><div class="w-16 h-16 bg-emerald-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 font-black text-2xl">5</div><h3 class="text-xl font-black text-slate-900 uppercase">Tahun 5</h3><p id="year5-count" class="text-emerald-600 font-bold text-xs">0 murid</p></div>
             <div onclick="selectYear(6)" class="bg-white rounded-3xl p-8 border-2 border-slate-100 hover:border-rose-500 hover:shadow-2xl transition-all cursor-pointer group text-center"><div class="w-16 h-16 bg-rose-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 font-black text-2xl">6</div><h3 class="text-xl font-black text-slate-900 uppercase">Tahun 6</h3><p id="year6-count" class="text-rose-600 font-bold text-xs">0 murid</p></div>
          </div>
+
          <div id="attendance-data-view" class="hidden space-y-6 text-left">
             <div class="flex flex-col md:flex-row items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 gap-4">
                 <div class="flex items-center gap-4"><button onclick="backToYearSelection()" class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-200"><i data-lucide="arrow-left" class="w-5 h-5"></i></button><h2 id="selected-year-label-att" class="text-xl font-black text-slate-900 uppercase tracking-tighter">Kehadiran</h2></div>
-                <button onclick="generateAttendancePDF()" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 flex items-center gap-2 text-xs shadow-lg shadow-indigo-100"><i data-lucide="printer" class="w-4 h-4"></i> Cetak PDF</button>
+                <button onclick="generateAttendancePDF()" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 flex items-center gap-2 text-xs shadow-lg shadow-indigo-100"><i data-lucide="printer" class="w-4 h-4"></i> Cetak PDF Kehadiran</button>
             </div>
-            <div class="bg-white rounded-2xl p-6 border border-slate-100"><div class="grid grid-cols-2 md:grid-cols-6 gap-3"><script>for(let i=1;i<=12;i++){document.write(`<div class="p-2 bg-slate-50 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-indigo-400 uppercase block mb-1">P${i}</label><input type="date" data-date="${i}" class="date-input w-full bg-transparent border-none text-[10px] font-bold p-0 focus:ring-0"></div>`)}</script></div></div>
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden table-container"><div class="overflow-x-auto"><table class="w-full text-xs"><thead class="bg-slate-50 border-b border-slate-100"><tr><th class="px-4 py-4 text-left w-10">Bil</th><th class="px-4 py-4 text-left min-w-[150px]">Nama</th><th class="px-2 py-4 text-center">Kelas</th><script>for(let i=1;i<=12;i++){document.write(`<th class="px-1 py-4 text-center min-w-[45px]">P${i}<br><button onclick="tickAllForMeeting(${i})" class="text-[8px] bg-indigo-500 text-white px-1 rounded hover:bg-indigo-600 mt-1 uppercase">/ Smua</button></th>`)}</script><th class="px-4 py-4 text-center bg-indigo-50 font-black">Jum</th></tr></thead><tbody id="attendance-body" class="divide-y divide-slate-100"></tbody></table></div></div>
+
+            <div class="bg-white rounded-2xl p-6 border border-slate-100">
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                    <script>
+                        for(let i=1;i<=12;i++){
+                            document.write(`<div class="p-2 bg-slate-50 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-indigo-400 uppercase block mb-1">P${i}</label><input type="date" data-date="${i}" class="date-input w-full bg-transparent border-none text-[10px] font-bold p-0 focus:ring-0"></div>`);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden table-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-4 py-4 text-left w-10">Bil</th>
+                                <th class="px-4 py-4 text-left min-w-[150px]">Nama</th>
+                                <th class="px-2 py-4 text-center">Kelas</th>
+                                <script>
+                                    for(let i=1;i<=12;i++){
+                                        document.write(`<th class="px-1 py-4 text-center min-w-[50px]">P${i}<br><button onclick="tickAllForMeeting(${i})" class="text-[8px] bg-indigo-500 text-white px-1 rounded hover:bg-indigo-600 mt-1 uppercase">/ Smua</button></th>`);
+                                    }
+                                </script>
+                                <th class="px-4 py-4 text-center bg-indigo-50 font-black">Jum</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
          </div>
       </div>
 
@@ -204,8 +250,8 @@
   </div>
 
   <script>
-    // --- KONFIGURASI SCRIPT URL ---
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLYTW_UTZ6BPNqyCTUyZjoxecqknbY43W9m5H-mIYsMpcjhb26O3BB8x7c0YXygT7t/exec";
+    // --- KONFIGURASI SCRIPT URL ANDA ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOzeWfuqqOoQCfNFh-RU6wAwPrZZrMvsJY-eZ-e_NSkO8qIYbwO4PMrb2W3MZxbTx-/exec";
     
     let config = { unit_name: '' };
     let studentsData = [];
@@ -244,7 +290,6 @@
     }
 
     async function loadData() {
-        if (SCRIPT_URL.includes("MASUKKAN_URL")) return;
         if (isInitialLoad) toggleLoader(true);
         try {
             const response = await fetch(SCRIPT_URL);
@@ -261,12 +306,19 @@
     }
 
     async function syncToSheet(action, data, elementRef = null) {
+        // Bina ID unik jika rekod murid
         if(data.record_type === 'student') data.id = `${data.year}_${data.name}`;
+        
         if (elementRef) elementRef.classList.add('syncing');
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action, data }) });
-            // Beri masa sebentar sebelum muat semula data
-            setTimeout(loadData, 500); 
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, data }) 
+            });
+            // Delay sedikit untuk pastikan Google Sheet sempat proses sebelum kita refresh UI
+            setTimeout(loadData, 600); 
         } catch (e) { console.error("Error syncing:", e); } finally { if (elementRef) elementRef.classList.remove('syncing'); }
     }
 
@@ -281,7 +333,7 @@
         document.getElementById(`tab-${tab}`).classList.add('bg-red-500', 'text-white', 'shadow-md');
     }
 
-    // -- Student List Logic --
+    // --- Student List Logics ---
     function selectStudentListYear(y) {
         studentListYear = y;
         document.getElementById('student-list-year-selection').classList.add('hidden');
@@ -343,7 +395,7 @@
         toggleLoader(false);
     }
 
-    // -- Attendance Logic --
+    // --- Attendance Logics ---
     function selectYear(y) {
         selectedYear = y;
         document.getElementById('year-selection').classList.add('hidden');
@@ -392,7 +444,7 @@
         toggleLoader(false);
     }
 
-    // -- Others --
+    // --- Search & Other Functions ---
     function updateAnalytics() {
         const y = document.getElementById('analytics-year-selector').value;
         const mv = document.getElementById('meeting-selector').value;
