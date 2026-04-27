@@ -289,22 +289,38 @@
         });
     }
 
-    async function loadData() {
-        if (isInitialLoad) toggleLoader(true);
-        try {
-            const response = await fetch(SCRIPT_URL);
-            const data = await response.json();
-            studentsData = data.filter(d => d.record_type === 'student');
-            const unitCfg = data.find(d => d.record_type === 'unit_config');
-            if (unitCfg) { config.unit_name = unitCfg.unit_name || ''; document.getElementById('unit-input').value = config.unit_name; }
-            meetingDatesRecord = data.find(d => d.record_type === 'meeting_dates') || { record_type: 'meeting_dates' };
-            updateYearCounts(); loadMeetingDatesUI();
-            if (studentListYear) renderStudentListRows();
-            if (selectedYear) renderStudentRows();
-            updateAnalytics();
-        } catch (e) { console.error("Error loading data:", e); } finally { toggleLoader(false); isInitialLoad = false; }
+async function loadData() {
+    if (isInitialLoad) toggleLoader(true);
+    try {
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
+        
+        // 1. Asingkan data murid
+        studentsData = data.filter(d => d.record_type === 'student');
+        
+        // 2. Cari REKOD CONFIG (Nama Unit) - Pastikan dia cari record_type yang betul
+        const unitCfg = data.find(d => d.record_type === 'unit_config');
+        if (unitCfg) { 
+            config.unit_name = unitCfg.unit_name || ''; 
+            document.getElementById('unit-input').value = config.unit_name; 
+        }
+        
+        // 3. Cari REKOD DATES (Tarikh)
+        meetingDatesRecord = data.find(d => d.record_type === 'meeting_dates') || { record_type: 'meeting_dates' };
+        
+        updateYearCounts(); 
+        loadMeetingDatesUI(); // Fungsi ini akan masukkan tarikh ke kotak P1-P12
+        
+        if (studentListYear) renderStudentListRows();
+        if (selectedYear) renderStudentRows();
+        updateAnalytics();
+    } catch (e) { 
+        console.error("Error loading data:", e); 
+    } finally { 
+        toggleLoader(false); 
+        isInitialLoad = false; 
     }
-
+}
     async function syncToSheet(action, data, elementRef = null) {
         // Bina ID unik jika rekod murid
         if(data.record_type === 'student') data.id = `${data.year}_${data.name}`;
