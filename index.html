@@ -61,19 +61,18 @@
         border-top: 1px solid #000 !important;
         background-color: white !important;
         padding: 10px 0 !important;
-        /* Pastikan tulisan hitam pekat dalam PDF */
         color: black !important;
         display: block !important;
+        z-index: 9999 !important; /* Tambah ini supaya footer sentiasa di depan */
     }
 
-    /* Elakkan data bertindih dengan footer dalam PDF */
     body {
-        margin-bottom: 60px !important;
+        margin-bottom: 80px !important; /* Tambah margin lebih sikit supaya selamat */
         background-color: white !important;
+        -webkit-print-color-adjust: exact; /* Paksa warna keluar */
     }
 
-    /* Sembunyikan navigasi & butang dalam PDF */
-    nav, button, .no-print, .search-container {
+    nav, button, .no-print, .search-container, .loading-overlay {
         display: none !important;
     }
 }
@@ -295,9 +294,6 @@
           <div class="flex gap-4"><button onclick="closeDeleteAllModal()" class="flex-1 px-6 py-3 border-2 border-slate-100 rounded-2xl font-bold">Batal</button><button onclick="confirmDeleteAll()" class="flex-1 px-6 py-3 bg-rose-600 text-white font-bold rounded-2xl">PADAM</button></div>
         </div>
     </div>
-
-    <footer class="mt-12 py-8 text-center border-t border-slate-200"><p class="text-black text-[10px] font-black uppercase tracking-[0.3em]">Unit Kokurikulum SKBTHO2 © 2026</p></footer>
-  </div>
 
   <script>
     // --- KONFIGURASI SCRIPT URL ANDA ---
@@ -647,5 +643,7 @@ function loadMeetingDatesUI() {
         const win = window.open('','_blank'); win.document.write(html); win.document.close();
     }
   </script>
+         <footer class="mt-12 py-8 text-center border-t border-slate-200"><p class="text-black text-[10px] font-black uppercase tracking-[0.3em]">Unit Kokurikulum SKBTHO2 © 2026</p></footer>
+  </div>
 </body>
 </html>
