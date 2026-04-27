@@ -240,7 +240,7 @@
 
     <div id="delete-all-modal" class="hidden fixed inset-0 bg-slate-900/60 flex items-center justify-center z-[9999] modal-backdrop p-4">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl modal-content text-center border-t-8 border-rose-600">
-          <h3 class="text-2xl font-black text-rose-600 mb-2 uppercase">Bahaya!</h3>
+          <h3 class="text-2xl font-black text-rose-600 mb-2 uppercase">Amaran!</h3>
           <p class="text-slate-600 mb-6 text-xs font-bold uppercase">Padam Semua Murid Tahun <span id="delete-all-year"></span>?</p>
           <input type="password" id="delete-all-pin-input" placeholder="PIN" class="w-full border-2 border-slate-100 rounded-xl px-4 py-3 text-center mb-4 font-bold tracking-[1em]">
           <div class="flex gap-4"><button onclick="closeDeleteAllModal()" class="flex-1 px-6 py-3 border-2 border-slate-100 rounded-2xl font-bold">Batal</button><button onclick="confirmDeleteAll()" class="flex-1 px-6 py-3 bg-rose-600 text-white font-bold rounded-2xl">PADAM</button></div>
@@ -549,7 +549,8 @@ function loadMeetingDatesUI() {
 
     function openDeleteModalManual(name) { studentToDelete = studentsData.find(s => s.name === name && s.year == studentListYear); document.getElementById('delete-student-name').textContent = `"${name}"`; document.getElementById('delete-modal').classList.remove('hidden'); }
     function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); document.getElementById('delete-pin-input').value = ''; }
-    async function confirmDelete() { if (document.getElementById('delete-pin-input').value !== PIN) { alert("PIN SALAH!"); return; } await syncToSheet('delete', studentToDelete); closeDeleteModal(); }
+    async function confirmDelete() { if (document.getElementById('delete-pin-input').value !== PIN) { alert("PIN SALAH!"); return; } await syncToSheet('delete', studentToDelete); closeDeleteModal(); showAutoSaveNotification('Dipadam', `${deletedName} telah dikeluarkan.`);
+}
 
     function openDeleteAllModal() { document.getElementById('delete-all-year').textContent = studentListYear; document.getElementById('delete-all-modal').classList.remove('hidden'); }
     function closeDeleteAllModal() { document.getElementById('delete-all-modal').classList.add('hidden'); document.getElementById('delete-all-pin-input').value = ''; }
