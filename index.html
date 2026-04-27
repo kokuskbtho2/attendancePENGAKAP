@@ -306,7 +306,9 @@ async function loadData() {
         }
         
         // 3. Cari REKOD DATES (Tarikh)
-        meetingDatesRecord = data.find(d => d.record_type === 'meeting_dates') || { record_type: 'meeting_dates' };
+      // Pastikan baris ini ada dalam fungsi loadData()
+meetingDatesRecord = data.find(d => d.record_type === 'meeting_dates');
+console.log("Rekod Tarikh Ditemui:", meetingDatesRecord); // Untuk semakan di Console
         
         updateYearCounts(); 
         loadMeetingDatesUI(); // Fungsi ini akan masukkan tarikh ke kotak P1-P12
@@ -513,14 +515,22 @@ async function loadData() {
     showAutoSaveNotification('Tarikh', `Perjumpaan ${num} telah dikemaskini`);
 }
 
- function loadMeetingDatesUI() {
+function loadMeetingDatesUI() {
     for (let i = 1; i <= 12; i++) {
+        // Cari kotak input tarikh P1 hingga P12
         const input = document.querySelector(`.date-input[data-date="${i}"]`);
-        if (input) {
-            // Ia akan cari data dalam meetingDatesRecord['attendance_1'], dll.
+        
+        if (input && meetingDatesRecord) {
+            // Kita ambil data dari kolom attendance_1, attendance_2, dll
+            // Pastikan ejaan 'attendance_' sama dengan header di Sheets
             const dateVal = meetingDatesRecord[`attendance_${i}`]; 
+            
             if (dateVal) {
-                input.value = dateVal;
+                // Jika ada tarikh, kita paparkan di kotak input
+                // Kita ambil 10 aksara pertama sahaja (YYYY-MM-DD)
+                input.value = dateVal.toString().substring(0, 10);
+            } else {
+                input.value = ''; // Kosongkan jika tiada data
             }
         }
     }
