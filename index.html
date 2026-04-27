@@ -13,7 +13,15 @@
         .donut-chart { transform: rotate(-90deg); transition: all 1s cubic-bezier(0.4, 0, 0.2, 1); }
         #attendance-circle { transition: stroke-dasharray 1s ease-in-out; }
         .modal-backdrop { backdrop-filter: blur(4px); transition: all 0.3s ease; }
-        .modal-content { transform: scale(0.95); opacity: 0; transition: all 0.3s ease; }
+        .modal-content { width: 90%; /* Untuk skrin phone */
+    max-width: 500px; /* Had lebar maksimum untuk PC supaya nampak standard */
+    margin: auto;
+    border-radius: 1.5rem; /* Kekalkan kebulatan bucu yang sama */
+    overflow: hidden;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
         #delete-modal:not(.hidden) .modal-content, 
         #delete-all-modal:not(.hidden) .modal-content,
         #bulk-upload-student-list-modal:not(.hidden) .modal-content { transform: scale(1); opacity: 1; }
