@@ -665,49 +665,54 @@ const html = `
     <html>
     <head>
         <style>
-            /* CSS UNTUK CETAKAN */
+            /* CSS UNTUK CETAKAN YANG BERSIH */
             @media print {
                 body { margin: 0; padding: 0.5cm; -webkit-print-color-adjust: exact; }
-                table { page-break-inside: auto; width: 100% !important; }
-                tr { page-break-inside: avoid; page-break-after: auto; }
-                thead { display: table-header-group; } /* Ini supaya tajuk muncul di page 2 jika tak muat */
-                
-                /* Mengecilkan font jika murid ramai supaya muat satu page */
-                body { font-size: 8px; } 
+                table { width: 100% !important; page-break-inside: auto; }
+                tr { page-break-inside: avoid; break-inside: avoid; }
+                thead { display: table-header-group; } /* Tajuk tetap muncul jika ada Page 2 */
+                .pdf-footer { page-break-inside: avoid; }
             }
 
             table { width:100%; border-collapse:collapse; font-family:Arial; font-size:9px; table-layout: fixed; } 
             th,td { border:1px solid #000; padding:3px; word-wrap: break-word; } 
             th { background:#f2f2f2 !important; }
             
+            /* Footer sekarang tidak lagi fixed, dia ikut belakang jadual */
             .pdf-footer {
-                position: fixed; bottom: 0; width: 100%; text-align: center;
-                font-size: 9px; font-family: Arial, sans-serif; font-weight: bold;
-                border-top: 1px solid #000; padding: 8px 0; background: white;
+                width: 100%;
+                text-align: center;
+                font-size: 10px;
+                font-family: Arial, sans-serif;
+                font-weight: bold;
+                border-top: 1px solid #000;
+                padding: 15px 0;
+                margin-top: 20px; /* Jarak antara jadual dan footer */
+                background: white;
             }
-            body { margin-bottom: 40px; }
+            body { margin: 0; padding: 15px; }
         </style>
     </head>
     <body>
-        <div style="text-align:center; margin-bottom:10px">
-            <img src="${PDF_LOGO}" style="width:60px">
-            <h2 style="margin:2px 0; font-family:Arial Black; font-size:14px;">${NAMA_SEKOLAH}</h2>
-            <h3 style="margin:2px 0; font-size:12px;">REKOD KEHADIRAN KOKURIKULUM 2026</h3>
-            <p style="font-family:Arial; font-weight:bold; margin:0; font-size:11px;">${config.unit_name} (TAHUN ${selectedYear})</p>
+        <div style="text-align:center; margin-bottom:15px">
+            <img src="${PDF_LOGO}" style="width:70px">
+            <h2 style="margin:5px 0 0 0; font-family:Arial Black">${NAMA_SEKOLAH}</h2>
+            <h3 style="margin:5px 0">REKOD KEHADIRAN KOKURIKULUM 2026</h3>
+            <p style="font-family:Arial; font-weight:bold; margin:0">${config.unit_name} (TAHUN ${selectedYear})</p>
         </div>
+
         <table>
             <thead>
                 <tr>
-                    <th width="30">Bil</th><th width="160">Nama</th><th width="60">Kelas</th>
-                    <th width="25">P1</th><th width="25">P2</th><th width="25">P3</th><th width="25">P4</th>
-                    <th width="25">P5</th><th width="25">P6</th><th width="25">P7</th><th width="25">P8</th>
-                    <th width="25">P9</th><th width="25">P10</th><th width="25">P11</th><th width="25">P12</th>
-                    <th width="35">Jum</th>
+                    <th width="30">Bil</th><th width="180">Nama</th><th width="60">Kelas</th>
+                    ${Array.from({length:12}, (_,i)=>`<th width="32">P${i+1}</th>`).join('')}
+                    <th width="40">Jum</th>
                 </tr>
-                <tr style="background:#eeeeee"><th colspan="3">Tarikh:</th>${dates.map(d=>`<th>${d}</th>`).join('')}<th></th></tr>
+                <tr><th colspan="3" style="text-align:left">Tarikh:</th>${dates.map(d=>`<th>${d}</th>`).join('')}<th></th></tr>
             </thead>
             <tbody>${rows}</tbody>
         </table>
+        
         <div class="pdf-footer">Unit Kokurikulum SKBTHO2 © 2026</div>
     </body>
     </html>`;
@@ -716,7 +721,7 @@ const html = `
     win.document.write(html);
     win.document.close();
 
-    // TRIGGER PRINT DENGAN DELAY
+    // Beri masa 1 saat untuk Chrome susun jadual tanpa gangguan footer fixed
     setTimeout(() => {
         win.focus();
         win.print();
