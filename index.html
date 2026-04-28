@@ -76,21 +76,8 @@
     tfoot { display: table-footer-group; }
 
     /* Tambah padding pada container untuk elakkan data 'tenggelam' */
-#attendance-body td {
-        font-size: 8pt !important;
-        padding: 4px 2px !important; /* Kecilkan padding baris */
-    }
-}
-    table {
-        table-layout: fixed; /* Paksa saiz sel tetap */
-        width: 100% !important;
-        border-collapse: collapse;
-    }
-    
-    /* Pastikan baris mempunyai ketinggian minimum supaya browser mudah kira */
-    #attendance-body tr {
-        height: 35px !important; 
-        overflow: hidden;
+    #attendance-body tr:last-child {
+        margin-bottom: 50px !important;
     }
 }
     /* TAMPAL DI SINI (Bahagian baru untuk Sticky Column) */
