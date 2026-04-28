@@ -695,7 +695,17 @@ const html = `
     </html>`;
 
     const win = window.open('','_blank'); 
-    win.document.write(html); 
+    win.document.write(html); window.onload = function() {
+        // requestAnimationFrame memastikan browser sudah selesai 'melukis' layout
+        window.requestAnimationFrame(function() {
+            window.requestAnimationFrame(function() {
+                setTimeout(function() {
+                    window.print();
+                    // Optional: window.close(); // Tutup tab automatik selepas print
+                }, 1000); // Kita beri 1 saat penuh untuk stabilkan layout
+            });
+        });
+    };
     win.document.close();
 }
 
