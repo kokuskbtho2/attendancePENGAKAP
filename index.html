@@ -528,30 +528,39 @@ tr.innerHTML = `
         });
     }
 
-    function toggleAttendance(studentId, num, isChecked) {
-    // 1. Cari murid dalam data memori
-    const student = studentsData.find(s => s.id == studentId);
-    if (!student) return;
+    async function toggleAttendanceManual(name, num, btn) {
+    // 1. Cari data murid
+    const s = studentsData.find(x => x.name === name && x.year == selectedYear);
+    if (!s) return;
 
-    // 2. Kemas kini data dalam memori (Serta-merta)
-    student[`attendance_${num}`] = isChecked;
+    const key = `attendance_${num}`;
+    const newState = !(s[key] === true || s[key] === 'true');
+    
+    // 2. Kemas kini memori serta-merta
+    s[key] = newState;
 
-    // 3. Kemas kini paparan JUMLAH (Jum) di hujung baris secara manual
-    // Supaya cikgu nampak angka berubah tanpa tunggu loading
-    updateRowTotal(studentId);
+    // 3. Kemas kini rupa butang SERTA-MERTA (Tak perlu tunggu loading)
+    btn.classList.toggle('bg-emerald-500', newState); 
+    btn.classList.toggle('border-emerald-500', newState); 
+    btn.classList.toggle('text-white', newState); 
+    btn.textContent = newState ? '/' : 'O';
 
     // 4. SIMPAN KE GOOGLE SHEETS (Di belakang tab)
-    // Perhatikan: TIADA kata kunci 'await' di depan syncToSheet
-    // Ini supaya browser terus "jalan" tanpa tunggu respon server
-    syncToSheet('update', student)
+    // Kita buang 'await' di sini supaya cikgu boleh klik butang lain terus
+    syncToSheet('update', s, btn)
         .then(() => {
-            console.log("Berjaya simpan!");
+            console.log("Simpan berjaya:", name);
         })
         .catch(err => {
-            alert("Gagal simpan ke awan. Sila semak internet!");
-            // Jika gagal, kita patahkan balik tick tadi
-            student[`attendance_${num}`] = !isChecked;
-            renderTable(); 
+            console.error("Gagal simpan:", err);
+            alert("Ralat: Data tidak tersimpan. Sila refresh atau semak internet.");
+            
+            // Jika gagal, kita patahkan balik rupa butang
+            s[key] = !newState;
+            btn.classList.toggle('bg-emerald-500', !newState);
+            btn.classList.toggle('border-emerald-500', !newState);
+            btn.classList.toggle('text-white', !newState);
+            btn.textContent = !newState ? '/' : 'O';
         });
 }
 
