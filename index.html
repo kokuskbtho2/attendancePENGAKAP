@@ -243,24 +243,9 @@
             <div class="bg-white rounded-2xl p-6 border border-slate-100">
                 <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
                     <script>
-                      document.write(`
-        <th class="px-1 py-3 text-center min-w-[70px] bg-slate-50 border-x border-slate-100">
-            <div class="flex flex-col items-center gap-1">
-                <span class="text-xs font-bold text-slate-600">P${i}</span>
-                
-                <button onclick="tickAllForMeeting(${i})" 
-                        class="w-full text-[9px] bg-emerald-500 text-white py-1 px-1 rounded shadow-sm hover:bg-emerald-600 uppercase font-bold leading-tight">
-                    Semua
-                </button>
-                
-                <button onclick="untickAllForMeeting(${i})" 
-                        class="w-full text-[9px] bg-red-100 text-red-600 py-1 px-1 rounded border border-red-200 hover:bg-red-500 hover:text-white uppercase font-bold leading-tight">
-                    Reset
-                </button>
-            </div>
-        </th>
-    `);
-}
+                        for(let i=1;i<=12;i++){
+                            document.write(`<div class="p-2 bg-yellow-100 rounded-xl border border-slate-300"><label class="text-[9px] font-black text-indigo-400 uppercase block mb-1">P${i}</label><input type="date" data-date="${i}" class="date-input w-full bg-transparent border-none text-[10px] font-bold p-0 focus:ring-0"></div>`);
+                        }
                     </script>
                 </div>
             </div>
@@ -547,52 +532,29 @@ tr.innerHTML = `
 let isSyncing = {};
 
 // 1. FUNGSI TICK SATU-SATU (MANUAL)
-async function toggleAttendanceManual(name, num, btn) {
+function toggleAttendanceManual(name, num, btn) {
     const s = studentsData.find(x => x.name === name && x.year == selectedYear);
     if (!s) return;
 
     const key = `attendance_${num}`;
     const newState = !(s[key] === true || s[key] === 'true');
     
-    // 1. KEMAS KINI DATA MEMORI
     s[key] = newState;
 
-    // 2. VISUAL SEMENTARA (SEDANG PROSES)
+    // Visual Instant
     btn.style.transition = 'none'; 
     if (newState) {
-        // Jika nak TICK: Tukar jadi BIRU dulu (Tanda sedang simpan)
-        btn.className = "w-8 h-8 rounded-full border-2 bg-blue-500 border-blue-500 text-white flex items-center justify-center font-bold";
-        btn.textContent = '...';
+        btn.className = "w-8 h-8 rounded-full border-2 bg-emerald-500 border-emerald-500 text-white flex items-center justify-center font-bold";
+        btn.textContent = '/';
     } else {
-        // Jika nak UNTICK: Tukar jadi KUNING dulu (Tanda sedang simpan)
-        btn.className = "w-8 h-8 rounded-full border-2 bg-yellow-400 border-yellow-400 text-white flex items-center justify-center font-bold";
-        btn.textContent = '...';
+        btn.className = "w-8 h-8 rounded-full border-2 bg-white border-gray-300 text-transparent flex items-center justify-center font-bold";
+        btn.textContent = 'O';
     }
 
-    try {
-        // 3. HANTAR KE GOOGLE SHEETS (Guna AWAIT di sini supaya warna bertukar SELEPAS berjaya)
-        await syncToSheet('update', s, btn);
+    // UPDATE JUMLAH DI SKRIN (Cari elemen jumlah dan tukar angkanya terus)
+    updateRowTotalVisual(s);
 
-        // 4. VISUAL AKHIR (BERJAYA SIMPAN)
-        if (newState) {
-            // Jadi HIJAU pekat
-            btn.className = "w-8 h-8 rounded-full border-2 bg-emerald-500 border-emerald-500 text-white flex items-center justify-center font-bold";
-            btn.textContent = '/';
-        } else {
-            // Jadi PUTIH bersih
-            btn.className = "w-8 h-8 rounded-full border-2 bg-white border-gray-300 text-transparent flex items-center justify-center font-bold";
-            btn.textContent = 'O';
-        }
-        
-        // Update jumlah (Jum) di hujung baris
-        updateRowTotalVisual(s);
-
-    } catch (err) {
-        // Jika gagal, patahkan balik warna ke asal atau beri amaran merah
-        btn.className = "w-8 h-8 rounded-full border-2 bg-red-600 border-red-600 text-white flex items-center justify-center font-bold";
-        btn.textContent = '!';
-        alert("Gagal simpan! Sila semak internet.");
-    }
+    syncToSheet('update', s, btn);
 }
 
 // 2. FUNGSI TICK SEMUA
