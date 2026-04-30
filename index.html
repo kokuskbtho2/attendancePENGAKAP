@@ -266,7 +266,26 @@
         <th class="px-4 py-4 text-center bg-indigo-50 font-black">Jum</th>
     </tr>
 </thead>
-                        <tbody id="attendance-body" class="divide-y divide-slate-100"></tbody>
+                        <tbody id="attendance-body" class="divide-y divide-slate-100"></tbody><tfoot class="bg-slate-50 border-t-2 border-slate-200">
+    <tr>
+        <td colspan="3" class="px-4 py-3 text-right font-bold text-slate-400 text-[10px] uppercase">
+            Padam Kehadiran:
+        </td>
+        <script>
+            for (let i = 1; i <= 12; i++) {
+                document.write(`
+                    <td class="p-1 border border-slate-100 text-center">
+                        <button onclick="untickAllForMeeting(${i})" 
+                                class="w-full text-[9px] bg-red-50 text-red-600 py-1 rounded border border-red-100 hover:bg-red-600 hover:text-white transition-all font-bold uppercase">
+                            Reset
+                        </button>
+                    </td>
+                `);
+            }
+        </script>
+        <td class="bg-slate-100"></td>
+    </tr>
+</tfoot>
                     </table>
                 </div>
             </div>
@@ -523,8 +542,7 @@ tr.innerHTML = `
     <td class="px-4 py-3 font-black text-indigo-950 uppercase text-[10px] md:text-xs sticky-col-name">${s.name}</td>
     <td class="px-2 py-3 text-center font-bold text-indigo-600 text-[10px] uppercase">${s.class_name || '-'}</td>
     ${checks}
-    <td class="px-4 py-3 text-center bg-indigo-50 font-black text-indigo-700">${total}</td>
-`;            tbody.appendChild(tr);
+<td id="total-${s.name.replace(/\s+/g, '-')}" class="px-4 py-3 text-center bg-indigo-50 font-black text-indigo-700">${total}</td>`;            tbody.appendChild(tr);
         });
     }
 
@@ -585,27 +603,25 @@ async function tickAllForMeeting(num) {
 // 3. FUNGSI UNTICK SEMUA
 async function untickAllForMeeting(num) {
     if(!selectedYear) return;
-    if(!confirm(`Kosongkan semua kehadiran P${num}?`)) return;
+    if(!confirm(`KOSONGKAN semua kehadiran untuk Perjumpaan P${num}?`)) return;
 
+    // Visual Instant (Tukar butang jadi putih/O)
     const allButtons = document.querySelectorAll(`button[onclick*=", ${num}, this"]`);
     allButtons.forEach(btn => {
-        btn.style.transition = 'none';
-        btn.className = "w-8 h-8 rounded-full border-2 bg-white border-gray-300 text-transparent flex items-center justify-center font-bold";
+        btn.className = "w-7 h-7 rounded border-2 border-slate-200 text-slate-300 font-black text-[9px]";
         btn.textContent = 'O';
     });
 
     const targets = studentsData.filter(s => s.year == selectedYear);
-    targets.forEach(s => { 
-        s[`attendance_${num}`] = false; 
-        updateRowTotalVisual(s); // Kemas kini angka 'Jum' setiap murid
-    });
-
+    
+    // Guna 'for...of' supaya dia simpan ke Google Sheet satu-satu tanpa 'crash'
     for (const s of targets) {
-        syncToSheet('update', s);
-        await new Promise(r => setTimeout(r, 50)); 
+        s[`attendance_${num}`] = false; 
+        updateRowTotalVisual(s); // Kemaskini angka Jum di skrin
+        await syncToSheet('update', s);
     }
+    showAutoSaveNotification('Reset', `Kehadiran P${num} telah dikosongkan.`);
 }
-
 // FUNGSI TAMBAHAN: Supaya angka Jumlah (Jum) pun laju berubah
 function updateRowTotalVisual(student) {
     let total = 0;
