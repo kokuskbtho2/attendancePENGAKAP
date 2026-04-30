@@ -221,7 +221,28 @@
                         <th class="px-6 py-4 text-center text-xs font-bold text-slate-400 uppercase w-32">Tindakan</th>
                     </tr>
                 </thead>
-                <tbody id="student-list-body" class="divide-y divide-slate-100"></tbody>
+         <tbody id="attendance-body" class="divide-y divide-slate-100"></tbody>
+
+<tfoot class="bg-slate-50 border-t-2 border-slate-200">
+    <tr>
+        <td colspan="3" class="px-4 py-3 text-right font-bold text-slate-400 text-[10px] uppercase">
+            Padam Kehadiran:
+        </td>
+        <script>
+            for (let i = 1; i <= 12; i++) {
+                document.write(`
+                    <td class="p-1 border border-slate-100 text-center">
+                        <button onclick="untickAllForMeeting(${i})" 
+                                class="w-full text-[9px] bg-red-50 text-red-600 py-1 rounded border border-red-100 hover:bg-red-600 hover:text-white transition-all font-bold uppercase">
+                            Reset
+                        </button>
+                    </td>
+                `);
+            }
+        </script>
+        <td class="bg-slate-100"></td>
+    </tr>
+</tfoot>
             </table>
           </div>
         </div>
@@ -243,56 +264,38 @@
             <div class="bg-white rounded-2xl p-6 border border-slate-100">
                 <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
 <script>
-    // Katakan cikgu ada array tarikh, contoh: let tarikhSesi = ["2/4", "9/4", ...];
-    // Jika tiada, kita buat placeholder dulu supaya cikgu boleh isi.
-    
-    for (let i = 1; i <= 12; i++) {
-        document.write(`
-            <th class="px-1 py-2 text-center min-w-[75px] bg-slate-50 border-x border-slate-100">
-                <div class="flex flex-col items-center">
-                    <span class="text-[9px] text-slate-400 font-normal mb-1">Tari/Sesi</span>
-                    <span class="text-[10px] font-bold text-indigo-600 mb-2">P${i}</span>
-                    
-                    <div class="flex flex-col gap-1 w-full">
-                        <button onclick="tickAllForMeeting(${i})" 
-                                class="text-[8px] bg-emerald-500 text-white py-0.5 rounded shadow-sm hover:bg-emerald-600 uppercase">
-                            Semua
-                        </button>
-                        <button onclick="untickAllForMeeting(${i})" 
-                                class="text-[8px] bg-red-100 text-red-600 py-0.5 rounded border border-red-200 hover:bg-red-500 hover:text-white uppercase">
-                            Reset
-                        </button>
-                    </div>
-                </div>
-            </th>
-        `);
-    }
-</script>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden table-container">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs">
 <thead class="bg-slate-50 border-b border-slate-100">
     <tr>
         <th class="px-4 py-4 text-left w-10 sticky-col">Bil</th>
         <th class="px-4 py-4 text-left min-w-[180px] sticky-col-name">Nama</th>
         <th class="px-2 py-4 text-center">Kelas</th>
+        
         <script>
-            for(let i=1;i<=12;i++){
-                document.write(`<th class="px-1 py-4 text-center min-w-[60px]">P${i}<br><button onclick="tickAllForMeeting(${i})" class="text-[8px] bg-indigo-500 text-white px-1 rounded hover:bg-indigo-600 mt-1 uppercase">/ Semua</button></th>`);
+            // Kita buat satu loop sahaja untuk 12 kolum (P1-P12)
+            for (let i = 1; i <= 12; i++) {
+                document.write(`
+                    <th class="px-1 py-3 text-center min-w-[100px] bg-slate-50 border-x border-slate-100">
+                        <div class="flex flex-col items-center gap-1">
+                            <input type="date" 
+                                   id="date_p${i}" 
+                                   class="w-full text-[10px] p-1 border border-slate-200 rounded text-indigo-700 font-bold focus:ring-1 focus:ring-indigo-400 outline-none"
+                                   onchange="updateDate(${i}, this.value)">
+                            
+                            <span class="text-[10px] font-bold text-slate-500 uppercase">P${i}</span>
+                            
+                            <button onclick="tickAllForMeeting(${i})" 
+                                    class="w-full text-[9px] bg-indigo-500 text-white py-1 rounded hover:bg-indigo-600 uppercase font-bold shadow-sm transition-colors">
+                                / Semua
+                            </button>
+                        </div>
+                    </th>
+                `);
             }
         </script>
+
         <th class="px-4 py-4 text-center bg-indigo-50 font-black">Jum</th>
     </tr>
 </thead>
-                        <tbody id="attendance-body" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
-         </div>
-      </div>
 
       <div id="view-analytics" class="view-container hidden">
         <div class="bg-white rounded-3xl p-8 border border-slate-100 text-left space-y-8">
