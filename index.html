@@ -528,40 +528,46 @@ tr.innerHTML = `
         });
     }
 
-    async function toggleAttendanceManual(name, num, btn) {
-    // 1. Cari data murid
+    // Guna pembolehubah global (di luar fungsi) untuk simpan status "tengah simpan"
+let isSyncing = {};
+
+async function toggleAttendanceManual(name, num, btn) {
     const s = studentsData.find(x => x.name === name && x.year == selectedYear);
     if (!s) return;
 
     const key = `attendance_${num}`;
     const newState = !(s[key] === true || s[key] === 'true');
     
-    // 2. Kemas kini memori serta-merta
-    s[key] = newState;
-
-    // 3. Kemas kini rupa butang SERTA-MERTA (Tak perlu tunggu loading)
+    // 1. UPDATE VISUAL SERTA-MERTA (Tak perlu tunggu apa-apa)
+    s[key] = newState; // Kemas kini memori
+    
+    // Tukar warna butang terus
     btn.classList.toggle('bg-emerald-500', newState); 
     btn.classList.toggle('border-emerald-500', newState); 
     btn.classList.toggle('text-white', newState); 
     btn.textContent = newState ? '/' : 'O';
 
-    // 4. SIMPAN KE GOOGLE SHEETS (Di belakang tab)
-    // Kita buang 'await' di sini supaya cikgu boleh klik butang lain terus
-    syncToSheet('update', s, btn)
-        .then(() => {
-            console.log("Simpan berjaya:", name);
-        })
-        .catch(err => {
+    // 2. DEBOUNCING / JEDA SIMPAN (Teknik Rahsia)
+    // Jika guru klik laju-laju, kita batalkan simpanan yang lama, ambil yang paling akhir sahaja
+    const syncKey = `${name}_${num}`;
+    if (isSyncing[syncKey]) {
+        clearTimeout(isSyncing[syncKey]);
+    }
+
+    // Beri masa 500ms (0.5 saat) selepas klik terakhir baru hantar ke Google Sheets
+    isSyncing[syncKey] = setTimeout(async () => {
+        try {
+            // Hantar ke Google Sheets tanpa AWAIT di depan (biar dia jalan belakang tab)
+            syncToSheet('update', s, btn).then(() => {
+                delete isSyncing[syncKey];
+                console.log(`Data ${name} tersimpan.`);
+            });
+        } catch (err) {
             console.error("Gagal simpan:", err);
-            alert("Ralat: Data tidak tersimpan. Sila refresh atau semak internet.");
-            
-            // Jika gagal, kita patahkan balik rupa butang
-            s[key] = !newState;
-            btn.classList.toggle('bg-emerald-500', !newState);
-            btn.classList.toggle('border-emerald-500', !newState);
-            btn.classList.toggle('text-white', !newState);
-            btn.textContent = !newState ? '/' : 'O';
-        });
+            // Hanya kalau betul-betul gagal total baru kita bagi amaran
+            alert("Internet tidak stabil. Sila semak tanda tanda tadi.");
+        }
+    }, 500); 
 }
 
     async function tickAllForMeeting(num) {
