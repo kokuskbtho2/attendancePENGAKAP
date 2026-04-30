@@ -221,28 +221,7 @@
                         <th class="px-6 py-4 text-center text-xs font-bold text-slate-400 uppercase w-32">Tindakan</th>
                     </tr>
                 </thead>
-         <tbody id="attendance-body" class="divide-y divide-slate-100"></tbody>
-
-<tfoot class="bg-slate-50 border-t-2 border-slate-200">
-    <tr>
-        <td colspan="3" class="px-4 py-3 text-right font-bold text-slate-400 text-[10px] uppercase">
-            Padam Kehadiran:
-        </td>
-        <script>
-            for (let i = 1; i <= 12; i++) {
-                document.write(`
-                    <td class="p-1 border border-slate-100 text-center">
-                        <button onclick="untickAllForMeeting(${i})" 
-                                class="w-full text-[9px] bg-red-50 text-red-600 py-1 rounded border border-red-100 hover:bg-red-600 hover:text-white transition-all font-bold uppercase">
-                            Reset
-                        </button>
-                    </td>
-                `);
-            }
-        </script>
-        <td class="bg-slate-100"></td>
-    </tr>
-</tfoot>
+                <tbody id="student-list-body" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
@@ -263,39 +242,51 @@
 
             <div class="bg-white rounded-2xl p-6 border border-slate-100">
                 <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
-<script>
+                    <script>
+                      document.write(`
+        <th class="px-1 py-3 text-center min-w-[70px] bg-slate-50 border-x border-slate-100">
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-slate-600">P${i}</span>
+                
+                <button onclick="tickAllForMeeting(${i})" 
+                        class="w-full text-[9px] bg-emerald-500 text-white py-1 px-1 rounded shadow-sm hover:bg-emerald-600 uppercase font-bold leading-tight">
+                    Semua
+                </button>
+                
+                <button onclick="untickAllForMeeting(${i})" 
+                        class="w-full text-[9px] bg-red-100 text-red-600 py-1 px-1 rounded border border-red-200 hover:bg-red-500 hover:text-white uppercase font-bold leading-tight">
+                    Reset
+                </button>
+            </div>
+        </th>
+    `);
+}
+                    </script>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden table-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
 <thead class="bg-slate-50 border-b border-slate-100">
     <tr>
         <th class="px-4 py-4 text-left w-10 sticky-col">Bil</th>
         <th class="px-4 py-4 text-left min-w-[180px] sticky-col-name">Nama</th>
         <th class="px-2 py-4 text-center">Kelas</th>
-        
         <script>
-            // Kita buat satu loop sahaja untuk 12 kolum (P1-P12)
-            for (let i = 1; i <= 12; i++) {
-                document.write(`
-                    <th class="px-1 py-3 text-center min-w-[100px] bg-slate-50 border-x border-slate-100">
-                        <div class="flex flex-col items-center gap-1">
-                            <input type="date" 
-                                   id="date_p${i}" 
-                                   class="w-full text-[10px] p-1 border border-slate-200 rounded text-indigo-700 font-bold focus:ring-1 focus:ring-indigo-400 outline-none"
-                                   onchange="updateDate(${i}, this.value)">
-                            
-                            <span class="text-[10px] font-bold text-slate-500 uppercase">P${i}</span>
-                            
-                            <button onclick="tickAllForMeeting(${i})" 
-                                    class="w-full text-[9px] bg-indigo-500 text-white py-1 rounded hover:bg-indigo-600 uppercase font-bold shadow-sm transition-colors">
-                                / Semua
-                            </button>
-                        </div>
-                    </th>
-                `);
+            for(let i=1;i<=12;i++){
+                document.write(`<th class="px-1 py-4 text-center min-w-[60px]">P${i}<br><button onclick="tickAllForMeeting(${i})" class="text-[8px] bg-indigo-500 text-white px-1 rounded hover:bg-indigo-600 mt-1 uppercase">/ Semua</button></th>`);
             }
         </script>
-
         <th class="px-4 py-4 text-center bg-indigo-50 font-black">Jum</th>
     </tr>
 </thead>
+                        <tbody id="attendance-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+         </div>
+      </div>
 
       <div id="view-analytics" class="view-container hidden">
         <div class="bg-white rounded-3xl p-8 border border-slate-100 text-left space-y-8">
@@ -599,60 +590,52 @@ function toggleAttendanceManual(name, num, btn) {
         btn.textContent = "!";
     });
 }
-// 1. FUNGSI UNTUK BUTANG "/ SEMUA" (TICK SEMUA)
+// 2. FUNGSI TICK SEMUA
 async function tickAllForMeeting(num) {
-    const confirmTick = confirm(`Tanda SEMUA murid hadir untuk Perjumpaan P${num}?`);
-    if (!confirmTick) return;
+    if(!selectedYear) return;
+    if(!confirm(`Hadir semua murid P${num}?`)) return;
 
-    const key = `attendance_${num}`;
-    // Tapis murid yang BELUM tick sahaja untuk jimat proses
-    const studentsToUpdate = studentsData.filter(s => s.year == selectedYear && (s[key] !== true && s[key] !== 'true'));
+    const allButtons = document.querySelectorAll(`button[onclick*=", ${num}, this"]`);
+    allButtons.forEach(btn => {
+        btn.style.transition = 'none';
+        btn.className = "w-8 h-8 rounded-full border-2 bg-emerald-500 border-emerald-500 text-white flex items-center justify-center font-bold";
+        btn.textContent = '/';
+    });
 
-    for (let s of studentsToUpdate) {
-        s[key] = true;
-        const btn = document.querySelector(`button[onclick*="'${s.name}'"][onclick*="${num}"]`);
-        
-        if (btn) {
-            // Visual Biru (Proses)
-            btn.className = "w-8 h-8 rounded-full border-2 bg-blue-500 border-blue-500 text-white flex items-center justify-center font-bold";
-            btn.textContent = "...";
-            
-            // Simpan ke Google Sheet
-            syncToSheet('update', s, btn).then(() => {
-                // Visual Hijau (Siap)
-                btn.className = "w-8 h-8 rounded-full border-2 bg-emerald-500 border-emerald-500 text-white flex items-center justify-center font-bold";
-                btn.textContent = "/";
-                updateRowTotalVisual(s);
-            });
-        }
+    const targets = studentsData.filter(s => s.year == selectedYear);
+    targets.forEach(s => { 
+        s[`attendance_${num}`] = true; 
+        updateRowTotalVisual(s); // Kemas kini angka 'Jum' setiap murid
+    });
+
+    for (const s of targets) {
+        syncToSheet('update', s);
+        await new Promise(r => setTimeout(r, 50)); 
     }
+    alert("Semua murid telah ditanda hadir!");
 }
 
-// 2. FUNGSI UNTUK BUTANG "RESET" (UNTICK SEMUA)
+// 3. FUNGSI UNTICK SEMUA
 async function untickAllForMeeting(num) {
-    const confirmReset = confirm(`PADAM semua kehadiran untuk Perjumpaan P${num}?`);
-    if (!confirmReset) return;
+    if(!selectedYear) return;
+    if(!confirm(`Kosongkan semua kehadiran P${num}?`)) return;
 
-    const key = `attendance_${num}`;
-    const studentsToUpdate = studentsData.filter(s => s.year == selectedYear && (s[key] === true || s[key] === 'true'));
+    const allButtons = document.querySelectorAll(`button[onclick*=", ${num}, this"]`);
+    allButtons.forEach(btn => {
+        btn.style.transition = 'none';
+        btn.className = "w-8 h-8 rounded-full border-2 bg-white border-gray-300 text-transparent flex items-center justify-center font-bold";
+        btn.textContent = 'O';
+    });
 
-    for (let s of studentsToUpdate) {
-        s[key] = false;
-        const btn = document.querySelector(`button[onclick*="'${s.name}'"][onclick*="${num}"]`);
-        
-        if (btn) {
-            // Visual Kuning (Proses Padam)
-            btn.className = "w-8 h-8 rounded-full border-2 bg-yellow-400 border-yellow-400 text-white flex items-center justify-center font-bold";
-            btn.textContent = "...";
-            
-            // Simpan ke Google Sheet
-            syncToSheet('update', s, btn).then(() => {
-                // Visual Putih (Kosong/Reset)
-                btn.className = "w-8 h-8 rounded-full border-2 bg-white border-gray-300 text-transparent flex items-center justify-center font-bold";
-                btn.textContent = "O";
-                updateRowTotalVisual(s);
-            });
-        }
+    const targets = studentsData.filter(s => s.year == selectedYear);
+    targets.forEach(s => { 
+        s[`attendance_${num}`] = false; 
+        updateRowTotalVisual(s); // Kemas kini angka 'Jum' setiap murid
+    });
+
+    for (const s of targets) {
+        syncToSheet('update', s);
+        await new Promise(r => setTimeout(r, 50)); 
     }
 }
 
