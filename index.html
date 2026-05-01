@@ -593,53 +593,61 @@ async function toggleAttendanceManual(name, num, btn) {
 // 2. FUNGSI TICK SEMUA
 async function tickAllForMeeting(num) {
     if(!selectedYear) return;
-    if(!confirm(`Hadir semua murid P${num}?`)) return;
+    if(!confirm(`HADIR SEMUA murid P${num}?`)) return;
 
+    toggleLoader(true);
+    const key = `attendance_${num}`;
+    
+    // PENTING: Kemaskini data dalam memori (studentsData) terus
+    studentsData.forEach(s => {
+        if(s.year == selectedYear) {
+            s[key] = true; // Tukar jadi true dalam memori
+            updateRowTotalVisual(s); // Kemaskini angka Jum
+        }
+    });
+
+    // Kemaskini visual butang (Warna Hijau)
     const allButtons = document.querySelectorAll(`button[onclick*=", ${num}, this"]`);
     allButtons.forEach(btn => {
-        btn.style.transition = 'none';
-        btn.className = "w-8 h-8 rounded-full border-2 bg-emerald-500 border-emerald-500 text-white flex items-center justify-center font-bold";
-        btn.textContent = '/';
+        btn.className = "w-7 h-7 rounded-full border-2 bg-emerald-500 border-emerald-500 text-white flex items-center justify-center font-bold";
+        btn.textContent = "/";
     });
 
-    const targets = studentsData.filter(s => s.year == selectedYear);
-    targets.forEach(s => { 
-        s[`attendance_${num}`] = true; 
-        updateRowTotalVisual(s); // Kemas kini angka 'Jum' setiap murid
-    });
-
-    for (const s of targets) {
-        syncToSheet('update', s);
-        await new Promise(r => setTimeout(r, 50)); 
-    }
-    alert("Semua murid telah ditanda hadir!");
+    // Hantar ke Google Sheet secara pukal
+    await syncToSheet('bulk_update', { year: selectedYear, meeting_num: num, status: true });
+    
+    toggleLoader(false);
+    showAutoSaveNotification('Selesai', `Semua murid P${num} telah hadir.`);
 }
 
 // 3. FUNGSI UNTICK SEMUA
 async function untickAllForMeeting(num) {
     if(!selectedYear) return;
-    if(!confirm(`KOSONGKAN semua kehadiran P${num}?`)) return;
+    if(!confirm(`PADAM semua kehadiran P${num}?`)) return;
 
-    toggleLoader(true); // Tunjuk loading besar
+    toggleLoader(true);
     const key = `attendance_${num}`;
-    const targets = studentsData.filter(s => s.year == selectedYear);
     
-    // Tunjuk warna kuning (Proses) pada semua butang kolum tersebut
+    // PENTING: Kemaskini data dalam memori (studentsData) terus
+    studentsData.forEach(s => {
+        if(s.year == selectedYear) {
+            s[key] = false; // Tukar jadi false dalam memori
+            updateRowTotalVisual(s); // Kemaskini angka Jum
+        }
+    });
+
+    // Kemaskini visual butang (Warna Putih)
     const allButtons = document.querySelectorAll(`button[onclick*=", ${num}, this"]`);
     allButtons.forEach(btn => {
-        btn.className = "w-7 h-7 rounded-full border-2 bg-yellow-400 border-yellow-400 text-white flex items-center justify-center font-bold animate-pulse";
-        btn.textContent = "...";
+        btn.className = "w-7 h-7 rounded-full border-2 bg-white border-slate-300 text-transparent flex items-center justify-center font-bold";
+        btn.textContent = "O";
     });
 
-    // Hantar arahan 'bulk_update' ke Apps Script yang cikgu baru update tadi
-    await syncToSheet('bulk_update', { 
-        year: selectedYear, 
-        meeting_num: num, 
-        status: false 
-    });
-
+    // Hantar ke Google Sheet secara pukal
+    await syncToSheet('bulk_update', { year: selectedYear, meeting_num: num, status: false });
+    
     toggleLoader(false);
-    showAutoSaveNotification('Reset Selesai', `Kehadiran P${num} telah dikosongkan.`);
+    showAutoSaveNotification('Reset Selesai', `Kehadiran P${num} dikosongkan.`);
 }
 // FUNGSI TAMBAHAN: Supaya angka Jumlah (Jum) pun laju berubah
 function updateRowTotalVisual(student) {
