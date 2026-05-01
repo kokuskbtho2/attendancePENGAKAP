@@ -582,17 +582,36 @@ console.log("Rekod Tarikh Ditemui:", meetingDatesRecord); // Untuk semakan di Co
     }
 }
 
-    async function addStudentFromList() {
-        const name = document.getElementById('student-list-name-input').value.trim().toUpperCase();
-        const cls = document.getElementById('student-list-class-input').value.trim().toUpperCase();
-        if (!name || !studentListYear) return;
-        const data = { name, year: studentListYear, class_name: cls, record_type: 'student' };
-        for(let i=1; i<=12; i++) data[`attendance_${i}`] = false;
-        await syncToSheet('create', data, document.getElementById('add-student-list-btn'));
-        showAutoSaveNotification('Berjaya', `${name} telah ditambah.`);
-        document.getElementById('student-list-name-input').value = '';
-        document.getElementById('student-list-class-input').value = '';
-    }
+  async function addStudentFromList() {
+    const name = document.getElementById('student-list-name-input').value.trim().toUpperCase();
+    const cls = document.getElementById('student-list-class-input').value.trim().toUpperCase();
+    
+    if (!name || !studentListYear) return;
+
+    const data = { 
+        name, 
+        year: studentListYear, 
+        class_name: cls, 
+        record_type: 'student',
+        id: Date.now().toString() // Tambah ID unik supaya senang nak padam nanti
+    };
+
+    for(let i=1; i<=12; i++) data[`attendance_${i}`] = false;
+
+    // 1. Hantar ke Google Sheets
+    await syncToSheet('create', data, document.getElementById('add-student-list-btn'));
+
+    // --- BARIS MAGIK DI BAWAH ---
+    studentsData.push(data);      // 2. Masukkan terus dalam memori browser
+    renderStudentListRows();      // 3. Lukis balik jadual (Nama terus muncul!)
+    updateYearCounts();           // 4. Kemaskini bilangan murid pada tab
+    // ----------------------------
+
+    showAutoSaveNotification('Berjaya', `${name} telah ditambah.`);
+    
+    document.getElementById('student-list-name-input').value = '';
+    document.getElementById('student-list-class-input').value = '';
+}
 
       function setBtnStatus(btn, status) {
     if (!btn) return;
