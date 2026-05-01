@@ -929,19 +929,8 @@ function loadMeetingDatesUI() {
         document.body.appendChild(t); lucide.createIcons(); setTimeout(() => t.remove(), 3000);
     }
 
-function openDeleteModalManual(name) { 
-    // Kita guna decodeURIComponent atau pastikan string dibaca dengan betul
-    // Tapi cara paling selamat ialah cari dalam data
-    studentToDelete = studentsData.find(s => s.name === name && s.year == studentListYear); 
-
-    if (studentToDelete) {
-        document.getElementById('delete-student-name').textContent = `"${studentToDelete.name}"`; 
-        document.getElementById('delete-modal').classList.remove('hidden'); 
-    } else {
-        alert("Ralat: Data murid tidak dijumpai dalam senarai.");
-    }
-    
-      function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); document.getElementById('delete-pin-input').value = ''; }
+    function openDeleteModalManual(name) { studentToDelete = studentsData.find(s => s.name === name && s.year == studentListYear); document.getElementById('delete-student-name').textContent = `"${name}"`; document.getElementById('delete-modal').classList.remove('hidden'); }
+    function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); document.getElementById('delete-pin-input').value = ''; }
 async function confirmDelete() {
     if (document.getElementById('delete-pin-input').value !== PIN) {
         alert("PIN SALAH!");
