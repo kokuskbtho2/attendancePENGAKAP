@@ -948,8 +948,8 @@ function updateRowTotalVisual(student) {
 
 // FUNGSI BARU UNTUK WARNA KUNING
 function highlightStudentInTable(studentName) {
-    // 1. Cari semua baris dalam jadual
-    const rows = document.querySelectorAll('#student-list-body tr');
+    // 1. TUKAR DI SINI: Kita cari dalam jadual kehadiran, bukan senarai murid
+    const rows = document.querySelectorAll('#attendance-body tr'); 
     
     rows.forEach(row => {
         // Ambil nama dari kolom kedua (td ke-2)
@@ -968,7 +968,6 @@ function highlightStudentInTable(studentName) {
                 row.style.transition = 'background-color 1s ease';
             }, 3000);
         } else {
-            row.style.outline = "2px solid #eab308"; // Tambah border kuning pekat sikit
             row.style.backgroundColor = ''; // Reset baris lain
         }
     });
