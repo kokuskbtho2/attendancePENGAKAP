@@ -549,33 +549,18 @@ console.log("Rekod Tarikh Ditemui:", meetingDatesRecord); // Untuk semakan di Co
         document.getElementById('student-list-data-view').classList.add('hidden');
     }
 
-function renderStudentListRows() {
-    const tbody = document.getElementById('student-list-body');
-    const students = studentsData.filter(s => s.year == studentListYear)
-        .sort((a,b) => (a.class_name||"").localeCompare(b.class_name||"") || a.name.localeCompare(b.name));
-    
-    tbody.innerHTML = '';
-    
-    students.forEach((s, i) => {
-        // --- LANGKAH PENTING: Handle tanda calit (') ---
-        const safeName = s.name.replace(/'/g, "\\'"); 
-
-        const tr = document.createElement('tr');
-        // Gunakan safeName di dalam onclick
-        tr.innerHTML = `
-            <td class="px-6 py-4 font-bold text-slate-400">${i+1}</td>
-            <td class="px-6 py-4 font-black text-slate-900 uppercase text-xs">${s.name}</td>
-            <td class="px-6 py-4 text-center font-bold text-indigo-600 uppercase text-xs">${s.class_name || '-'}</td>
-            <td class="px-6 py-4 text-center">
-                <button onclick="openDeleteModalManual('${safeName}')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
-            </td>`;
-        tbody.appendChild(tr);
-    });
-    
-    lucide.createIcons();
-}
+    function renderStudentListRows() {
+        const tbody = document.getElementById('student-list-body');
+        const students = studentsData.filter(s => s.year == studentListYear)
+            .sort((a,b) => (a.class_name||"").localeCompare(b.class_name||"") || a.name.localeCompare(b.name));
+        tbody.innerHTML = '';
+        students.forEach((s, i) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="px-6 py-4 font-bold text-slate-400">${i+1}</td><td class="px-6 py-4 font-black text-slate-900 uppercase text-xs">${s.name}</td><td class="px-6 py-4 text-center font-bold text-indigo-600 uppercase text-xs">${s.class_name || '-'}</td><td class="px-6 py-4 text-center"><button onclick="openDeleteModalManual('${s.name}')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>`;
+            tbody.appendChild(tr);
+        });
+        lucide.createIcons();
+    }
 
     async function addStudentFromList() {
         const name = document.getElementById('student-list-name-input').value.trim().toUpperCase();
@@ -944,56 +929,13 @@ function loadMeetingDatesUI() {
         document.body.appendChild(t); lucide.createIcons(); setTimeout(() => t.remove(), 3000);
     }
 
-function openDeleteModalManual(name) { 
-    // Kita cari murid tersebut dalam data
-    studentToDelete = studentsData.find(s => s.name === name && s.year == studentListYear); 
-
-    if (studentToDelete) {
-        // Paparkan nama murid yang ingin dipadam di dalam modal
-        document.getElementById('delete-student-name').textContent = `"${studentToDelete.name}"`; 
-        document.getElementById('delete-modal').classList.remove('hidden'); 
-    } else {
-        alert("Ralat: Data murid tidak dijumpai.");
-    }
-}
-
-function closeDeleteModal() { 
-    document.getElementById('delete-modal').classList.add('hidden'); 
-    document.getElementById('delete-pin-input').value = ''; 
-    studentToDelete = null; // Reset data sementara
-}
-
+    function openDeleteModalManual(name) { studentToDelete = studentsData.find(s => s.name === name && s.year == studentListYear); document.getElementById('delete-student-name').textContent = `"${name}"`; document.getElementById('delete-modal').classList.remove('hidden'); }
+    function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); document.getElementById('delete-pin-input').value = ''; }
 async function confirmDelete() {
     if (document.getElementById('delete-pin-input').value !== PIN) {
         alert("PIN SALAH!");
         return;
     }
-
-    const nameToNotify = studentToDelete.name;
-
-    try {
-        toggleLoader(true); // Tunjukkan loading (jika ada)
-
-        // 1. Padam di Google Sheets (Server)
-        await syncToSheet('delete', studentToDelete);
-
-        // 2. KEMASKINI MEMORI (Buang dari studentsData supaya tak payah refresh)
-        studentsData = studentsData.filter(s => s !== studentToDelete);
-
-        // 3. KEMASKINI PAPARAN SKRIN TERUS
-        closeDeleteModal();
-        renderStudentListRows(); // Lukis balik jadual tanpa nama murid tadi
-        updateYearCounts();      // Kemaskini bilangan murid di tab
-
-        toggleLoader(false);
-        showAutoSaveNotification('Dipadam', `${nameToNotify} telah dikeluarkan.`);
-
-    } catch (error) {
-        toggleLoader(false);
-        console.error("Gagal memadam:", error);
-        alert("Gagal memadam data. Sila periksa internet cikgu.");
-    }
-}
 
     const nameToNotify = studentToDelete.name;
     const idToDelete = studentToDelete.id; // Pastikan ada ID unik atau guna kriteria unik
