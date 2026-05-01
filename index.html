@@ -550,17 +550,37 @@ console.log("Rekod Tarikh Ditemui:", meetingDatesRecord); // Untuk semakan di Co
     }
 
     function renderStudentListRows() {
-        const tbody = document.getElementById('student-list-body');
-        const students = studentsData.filter(s => s.year == studentListYear)
-            .sort((a,b) => (a.class_name||"").localeCompare(b.class_name||"") || a.name.localeCompare(b.name));
-        tbody.innerHTML = '';
-        students.forEach((s, i) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="px-6 py-4 font-bold text-slate-400">${i+1}</td><td class="px-6 py-4 font-black text-slate-900 uppercase text-xs">${s.name}</td><td class="px-6 py-4 text-center font-bold text-indigo-600 uppercase text-xs">${s.class_name || '-'}</td><td class="px-6 py-4 text-center"><button onclick="openDeleteModalManual('${s.name}')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>`;
-            tbody.appendChild(tr);
-        });
+    const tbody = document.getElementById('student-list-body');
+    const students = studentsData.filter(s => s.year == studentListYear)
+        .sort((a,b) => (a.class_name||"").localeCompare(b.class_name||"") || a.name.localeCompare(b.name));
+    
+    tbody.innerHTML = '';
+    
+    students.forEach((s, i) => {
+        // LANGKAH 1: Kita "jinakkan" tanda calit (') supaya tak error
+        const safeName = s.name.replace(/'/g, "\\'"); 
+
+        const tr = document.createElement('tr');
+        
+        // LANGKAH 2: Kita gunakan safeName di dalam onclick
+        tr.innerHTML = `
+            <td class="px-6 py-4 font-bold text-slate-400">${i+1}</td>
+            <td class="px-6 py-4 font-black text-slate-900 uppercase text-xs">${s.name}</td>
+            <td class="px-6 py-4 text-center font-bold text-indigo-600 uppercase text-xs">${s.class_name || '-'}</td>
+            <td class="px-6 py-4 text-center">
+                <button onclick="openDeleteModalManual('${safeName}')" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </td>`;
+        
+        tbody.appendChild(tr);
+    });
+    
+    // Pastikan icon sampah muncul
+    if (window.lucide) {
         lucide.createIcons();
     }
+}
 
     async function addStudentFromList() {
         const name = document.getElementById('student-list-name-input').value.trim().toUpperCase();
@@ -943,15 +963,14 @@ async function confirmDelete() {
     // 1. Hantar ke Google Sheets
     await syncToSheet('delete', studentToDelete);
 
-    // 2. BUANG DARI MEMORI (REAKTIF)
-    // Kita tapis keluar murid yang baru dipadam tadi
-    studentsData = studentsData.filter(s => s.id !== idToDelete);
+        // 2. Padam dari memori (Guna Nama & Tahun sebagai rujukan unik)
+        studentsData = studentsData.filter(s => !(s.name === studentToDelete.name && s.year === studentToDelete.year));
 
-    // 3. KEMASKINI PAPARAN TERUS
-    closeDeleteModal();
-    renderStudentList(); // Panggil fungsi lukis semula jadual
-    updateYearCounts();  // Kemaskini jumlah bilangan murid di tab
-    updateAnalytics();   // Kemaskini statistik di tab analisa (supaya peratus berubah terus)
+        // 3. Kemaskini paparan terus tanpa refresh
+        closeDeleteModal();
+        renderStudentListRows(); // Ini yang akan hilangkan nama tu dari jadual
+        updateYearCounts();      // Kemaskini bilangan murid di tab
+        updateAnalytics();       // Kemaskini statistik peratusan
     
     showAutoSaveNotification('Dipadam', `${nameToNotify} telah dikeluarkan.`);
 }
